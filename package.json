@@ -1,0 +1,21 @@
+{
+  "name": "extension-information",
+  "version": "0.0.1",
+  "description": "This gets the latest state of two very specific extensions.",
+  "type": "module",
+  "scripts": {
+    "build": "extension build",
+    "buildff": "extension build --browser firefox",
+    "dev": "extension dev",
+    "devff": "extension dev --browser firefox",
+    "start": "extension start",
+    "format": "biome format --write .",
+    "lint": "biome lint ."
+  },
+  "dependencies": {
+    "extension": "2.0.0-beta.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "latest"
+  }
+}
