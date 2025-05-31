@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extension Information</title>
+  <style>
+    body {
+      font-family: monospace;
+      width: 360px;
+      margin: 0;
+      padding: 8px;
+      background-color: #f0f0f0;
+      color: #333;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #666;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    h1 {
+      font-size: 16px;
+      margin: 0;
+    }
+
+    button {
+      background-color: #666;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-family: monospace;
+    }
+
+    button:hover {
+      background-color: #888;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .status-idle { background-color: #888; }
+    .status-fetching { background-color: #fc0; }
+    .status-success { background-color: #0c0; }
+    .status-error { background-color: #c00; }
+
+    .extension-item {
+      margin-bottom: 8px;
+      padding: 8px;
+      border: 1px solid #666;
+    }
+
+    .extension-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .extension-name {
+      font-weight: bold;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .extension-name:hover {
+      text-decoration: underline;
+    }
+
+    .extension-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      font-size: 12px;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 16px;
+      font-style: italic;
+    }
+
+    .meta-info {
+      font-size: 12px;
+      margin-top: 8px;
+      border-top: 1px solid #666;
+      padding-top: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-title">
+      <h1>Extension Information</h1>
+      <div id="status-dot" class="status-dot status-idle" title="Status"></div>
+    </div>
+    <div class="header-actions">
+      <button id="refresh-btn">Refresh</button>
+    </div>
+  </header>
+  
+  <div id="data-container" class="data-container">
+    <div class="loading">Loading data...</div>
+  </div>
+  
+  <div id="meta-info" class="meta-info"></div>
+  
+  <script src="popup.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "Extension Information",
+  "short_name": "eyeo-extension-release-information",
+  "description": "",
+  "version": "0.0.1",
+  "manifest_version": 3,
+  "host_permissions": [
+    "https://pub-079f1d96c32c4039998e87fd3c5b549d.r2.dev/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "alarms"
+  ]
+}
