@@ -24,17 +24,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log('Background script received message:', message);
 
   if (message.action === 'manualFetch') {
-    dataManager.manualFetch(message.source)
-      .then(data => {
-        sendResponse({ success: true, data });
-      })
-      .catch(error => {
-        sendResponse({ success: false, error: error.message });
-      });
-    return true;
-  }
-  if (message.action === 'getData') {
-    dataManager.getData(message.source)
+    dataManager.fetchData(message.source)
       .then(data => {
         sendResponse({ success: true, data });
       })

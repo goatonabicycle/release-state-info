@@ -78,23 +78,12 @@ class DataManager {
         source: sourceName,
         status: 'error',
         error: error.message
-      });
-
-      return null;
+      }); return null;
     }
-  }
-
-  async manualFetch(sourceName) {
-    return await this.fetchData(sourceName);
   }
 
   async getAllData() {
     return await chrome.storage.local.get(null);
-  }
-
-  async getData(sourceName) {
-    const result = await chrome.storage.local.get(sourceName);
-    return result[sourceName];
   }
 }
 
