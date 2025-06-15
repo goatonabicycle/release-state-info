@@ -46,7 +46,6 @@ class DataManager {
       }
     }
   }
-
   async fetchData(sourceName) {
     const source = this.sources.find(s => s.name === sourceName);
     if (!source) return null; try {
@@ -55,7 +54,24 @@ class DataManager {
 
       const response = await fetch(source.url);
       if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-      const data = await response.json(); await chrome.storage.local.set({ [sourceName]: data });
+      const rawData = await response.json();
+
+      let processedData = [];
+      if (rawData && typeof rawData === 'object' && !Array.isArray(rawData)) {
+        for (const storeName in rawData) {
+          if (Array.isArray(rawData[storeName])) {
+            const storeData = rawData[storeName].map(item => ({
+              ...item,
+              store: storeName
+            }));
+            processedData = [...processedData, ...storeData];
+          }
+        }
+      } else if (Array.isArray(rawData)) {
+        processedData = rawData;
+      }
+
+      await chrome.storage.local.set({ [sourceName]: processedData });
       source.lastFetched = new Date().toISOString();
       source.status = 'success';
       source.error = undefined;
@@ -67,7 +83,7 @@ class DataManager {
         status: 'success'
       });
 
-      return data;
+      return processedData;
     } catch (error) {
       source.status = 'error';
       source.error = error.message;

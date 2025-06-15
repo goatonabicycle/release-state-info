@@ -72,116 +72,148 @@ async function loadData() {
 
     const extensionData = allData.extensionStats;
 
-    dataContainer.innerHTML = ''; if (source.status === 'error' && source.error) {
+    dataContainer.innerHTML = '';
+
+    if (source.status === 'error' && source.error) {
       showError(source.error);
       return;
     }
 
     if (extensionData && Array.isArray(extensionData) && extensionData.length > 0) {
-      extensionData.slice(0, 10).forEach(item => {
-        const extensionItem = document.createElement('div');
-        extensionItem.className = 'extension-item';
-        const extensionHeader = document.createElement('div');
-        extensionHeader.className = 'extension-header'; const extensionName = document.createElement('a');
-        extensionName.className = 'extension-name';
-        extensionName.textContent = item.extension;
-        extensionName.title = 'Open in new tab';
-        if (item.url) {
-          extensionName.href = '#';
-          extensionName.addEventListener('click', (e) => {
-            e.preventDefault();
-            chrome.tabs.create({ url: item.url });
-          });
+
+      const groupedByStore = {};
+
+      for (const item of extensionData) {
+        const store = item.store || 'Unknown';
+        if (!groupedByStore[store]) {
+          groupedByStore[store] = [];
         }
-        extensionHeader.appendChild(extensionName);
+        groupedByStore[store].push(item);
+      }
 
-        const extensionVersion = document.createElement('div');
-        extensionVersion.className = 'extension-version';
-        extensionVersion.textContent = item.version;
-        extensionHeader.appendChild(extensionVersion);
+      for (const [storeName, storeItems] of Object.entries(groupedByStore)) {
+        const storeHeader = document.createElement('div');
+        storeHeader.className = 'store-header';
+        storeHeader.textContent = storeName;
+        dataContainer.appendChild(storeHeader);
 
-        extensionItem.appendChild(extensionHeader);
+        const displayItems = storeItems.slice(0, 5);
+        for (const item of displayItems) {
+          const extensionItem = document.createElement('div');
+          extensionItem.className = 'extension-item';
 
-        const extensionDetails = document.createElement('div');
-        extensionDetails.className = 'extension-details'; if (item.users) {
-          const userCount = document.createElement('div');
-          userCount.className = 'detail-item';
+          const extensionHeader = document.createElement('div');
+          extensionHeader.className = 'extension-header';
 
-          const userLabel = document.createElement('span');
-          userLabel.className = 'detail-label';
-          userLabel.textContent = 'Users:';
-          userCount.appendChild(userLabel);
+          const extensionName = document.createElement('a');
+          extensionName.className = 'extension-name';
+          extensionName.textContent = item.extension;
+          extensionName.title = 'Open in new tab';
+          if (item.url) {
+            extensionName.href = '#';
+            extensionName.addEventListener('click', (e) => {
+              e.preventDefault();
+              chrome.tabs.create({ url: item.url });
+            });
+          }
+          extensionHeader.appendChild(extensionName);
 
-          const userValue = document.createElement('span');
-          userValue.className = 'detail-value';
-          userValue.textContent = formatNumber(item.users);
-          userCount.appendChild(userValue);
+          const extensionVersion = document.createElement('div');
+          extensionVersion.className = 'extension-version';
+          extensionVersion.textContent = item.version;
+          extensionHeader.appendChild(extensionVersion);
 
-          extensionDetails.appendChild(userCount);
-        } if (item.lastUpdated) {
-          const lastUpdated = document.createElement('div');
-          lastUpdated.className = 'detail-item';
+          extensionItem.appendChild(extensionHeader);
 
-          const updatedLabel = document.createElement('span');
-          updatedLabel.className = 'detail-label';
-          updatedLabel.textContent = 'Updated:';
-          lastUpdated.appendChild(updatedLabel);
+          const extensionDetails = document.createElement('div');
+          extensionDetails.className = 'extension-details';
 
-          const updatedValue = document.createElement('span');
-          updatedValue.className = 'detail-value';
-          updatedValue.textContent = item.lastUpdated;
-          lastUpdated.appendChild(updatedValue);
+          if (item.users) {
+            const userCount = document.createElement('div');
+            userCount.className = 'detail-item';
 
-          extensionDetails.appendChild(lastUpdated);
-        } if (item.size) {
-          const sizeInfo = document.createElement('div');
-          sizeInfo.className = 'detail-item';
+            const userLabel = document.createElement('span');
+            userLabel.className = 'detail-label';
+            userLabel.textContent = 'Users:';
+            userCount.appendChild(userLabel);
 
-          const sizeLabel = document.createElement('span');
-          sizeLabel.className = 'detail-label';
-          sizeLabel.textContent = 'Size:';
-          sizeInfo.appendChild(sizeLabel);
+            const userValue = document.createElement('span');
+            userValue.className = 'detail-value';
+            userValue.textContent = formatNumber(item.users);
+            userCount.appendChild(userValue);
 
-          const sizeValue = document.createElement('span');
-          sizeValue.className = 'detail-value';
-          sizeValue.textContent = item.size;
-          sizeInfo.appendChild(sizeValue);
+            extensionDetails.appendChild(userCount);
+          }
 
-          extensionDetails.appendChild(sizeInfo);
-        } if (item.lastChecked) {
-          const lastChecked = document.createElement('div');
-          lastChecked.className = 'detail-item';
+          if (item.lastUpdated) {
+            const lastUpdated = document.createElement('div');
+            lastUpdated.className = 'detail-item';
 
-          const checkedLabel = document.createElement('span');
-          checkedLabel.className = 'detail-label';
-          checkedLabel.textContent = 'Checked:';
-          lastChecked.appendChild(checkedLabel);
+            const updatedLabel = document.createElement('span');
+            updatedLabel.className = 'detail-label';
+            updatedLabel.textContent = 'Updated:';
+            lastUpdated.appendChild(updatedLabel);
 
-          const checkedValue = document.createElement('span');
-          checkedValue.className = 'detail-value';
-          checkedValue.textContent = formatRelativeTime(new Date(item.lastChecked));
-          lastChecked.appendChild(checkedValue);
+            const updatedValue = document.createElement('span');
+            updatedValue.className = 'detail-value';
+            updatedValue.textContent = item.lastUpdated;
+            lastUpdated.appendChild(updatedValue);
 
-          extensionDetails.appendChild(lastChecked);
-        } extensionItem.appendChild(extensionDetails);
+            extensionDetails.appendChild(lastUpdated);
+          }
 
-        dataContainer.appendChild(extensionItem);
-      });
+          if (item.size) {
+            const sizeInfo = document.createElement('div');
+            sizeInfo.className = 'detail-item';
 
-      if (extensionData.length > 10) {
-        const moreText = document.createElement('div');
-        moreText.style.textAlign = 'center';
-        moreText.style.fontSize = '12px';
-        moreText.style.color = '#777';
-        moreText.style.marginTop = '8px';
-        moreText.textContent = `+ ${extensionData.length - 10} more`;
-        dataContainer.appendChild(moreText);
+            const sizeLabel = document.createElement('span');
+            sizeLabel.className = 'detail-label';
+            sizeLabel.textContent = 'Size:';
+            sizeInfo.appendChild(sizeLabel);
+
+            const sizeValue = document.createElement('span');
+            sizeValue.className = 'detail-value';
+            sizeValue.textContent = item.size;
+            sizeInfo.appendChild(sizeValue);
+
+            extensionDetails.appendChild(sizeInfo);
+          }
+
+          if (item.lastChecked) {
+            const lastChecked = document.createElement('div');
+            lastChecked.className = 'detail-item';
+
+            const checkedLabel = document.createElement('span');
+            checkedLabel.className = 'detail-label';
+            checkedLabel.textContent = 'Checked:';
+            lastChecked.appendChild(checkedLabel);
+
+            const checkedValue = document.createElement('span');
+            checkedValue.className = 'detail-value';
+            checkedValue.textContent = formatRelativeTime(new Date(item.lastChecked));
+            lastChecked.appendChild(checkedValue);
+
+            extensionDetails.appendChild(lastChecked);
+          }
+
+          extensionItem.appendChild(extensionDetails);
+          dataContainer.appendChild(extensionItem);
+        }
+
+        if (storeItems.length > 5) {
+          const moreText = document.createElement('div');
+          moreText.className = 'more-text';
+          moreText.textContent = `+ ${storeItems.length - 5} more extensions in ${storeName}`;
+          dataContainer.appendChild(moreText);
+        }
       }
     } else {
       dataContainer.innerHTML = '<div class="no-data">No extension data available</div>';
     }
 
-    metaInfo.innerHTML = ''; if (source.lastFetched) {
+    metaInfo.innerHTML = '';
+
+    if (source.lastFetched) {
       const lastFetchedElement = document.createElement('div');
       lastFetchedElement.textContent = `Last updated: ${formatRelativeTime(new Date(source.lastFetched))}`;
       metaInfo.appendChild(lastFetchedElement);
