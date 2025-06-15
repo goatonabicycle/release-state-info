@@ -50,26 +50,20 @@ class DataManager {
     const source = this.sources.find(s => s.name === sourceName);
     if (!source) return null; try {
       source.status = 'fetching';
-      await this.saveConfig();
-
-      const response = await fetch(source.url);
+      await this.saveConfig(); const response = await fetch(source.url);
       if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
       const rawData = await response.json();
 
-      let processedData = [];
-      if (rawData && typeof rawData === 'object' && !Array.isArray(rawData)) {
-        for (const storeName in rawData) {
-          if (Array.isArray(rawData[storeName])) {
-            const storeData = rawData[storeName].map(item => ({
-              ...item,
-              store: storeName
-            }));
-            processedData = [...processedData, ...storeData];
-          }
-        }
-      } else if (Array.isArray(rawData)) {
-        processedData = rawData;
-      }
+      const processedData = rawData;
+
+      console.log('DEBUG INFO - Processed Data:', {
+        processedDataType: typeof processedData,
+        isArray: Array.isArray(processedData),
+        topLevelKeys: typeof processedData === 'object' && !Array.isArray(processedData) ?
+          Object.keys(processedData) : [],
+        sampleStore: typeof processedData === 'object' && !Array.isArray(processedData) ?
+          Object.keys(processedData)[0] : null
+      });
 
       await chrome.storage.local.set({ [sourceName]: processedData });
       source.lastFetched = new Date().toISOString();

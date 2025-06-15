@@ -68,37 +68,32 @@ async function loadData() {
       return;
     }
 
-    updateStatus(source.status, source.status === 'success' ? 'OK' : source.status.charAt(0).toUpperCase() + source.status.slice(1));
+    updateStatus(source.status, source.status === 'success' ? 'OK' : source.status.charAt(0).toUpperCase() + source.status.slice(1)); const extensionData = allData.extensionStats;
 
-    const extensionData = allData.extensionStats;
-
-    dataContainer.innerHTML = '';
-
-    if (source.status === 'error' && source.error) {
+    dataContainer.innerHTML = ''; if (source.status === 'error' && source.error) {
       showError(source.error);
       return;
     }
 
-    if (extensionData && Array.isArray(extensionData) && extensionData.length > 0) {
+    if (extensionData && typeof extensionData === 'object' && !Array.isArray(extensionData)) {
+      console.log('Processing extension data as object with store keys');
 
-      const groupedByStore = {};
-
-      for (const item of extensionData) {
-        const store = item.store || 'Unknown';
-        if (!groupedByStore[store]) {
-          groupedByStore[store] = [];
+      for (const [storeName, storeItems] of Object.entries(extensionData)) {
+        if (!Array.isArray(storeItems) || storeItems.length === 0) {
+          continue;
         }
-        groupedByStore[store].push(item);
-      }
 
-      for (const [storeName, storeItems] of Object.entries(groupedByStore)) {
         const storeHeader = document.createElement('div');
         storeHeader.className = 'store-header';
         storeHeader.textContent = storeName;
-        dataContainer.appendChild(storeHeader);
-
+        dataContainer.appendChild(storeHeader);        // Only display first 5 items per store
         const displayItems = storeItems.slice(0, 5);
+
         for (const item of displayItems) {
+          if (!item.extension) {
+            continue;
+          }
+
           const extensionItem = document.createElement('div');
           extensionItem.className = 'extension-item';
 
@@ -198,15 +193,15 @@ async function loadData() {
 
           extensionItem.appendChild(extensionDetails);
           dataContainer.appendChild(extensionItem);
-        }
-
-        if (storeItems.length > 5) {
+        } if (storeItems.length > 5) {
           const moreText = document.createElement('div');
           moreText.className = 'more-text';
           moreText.textContent = `+ ${storeItems.length - 5} more extensions in ${storeName}`;
           dataContainer.appendChild(moreText);
         }
       }
+    } else if (extensionData && Array.isArray(extensionData) && extensionData.length > 0) {
+      dataContainer.innerHTML = '<div class="no-data">Using old data format. Please refresh.</div>';
     } else {
       dataContainer.innerHTML = '<div class="no-data">No extension data available</div>';
     }
